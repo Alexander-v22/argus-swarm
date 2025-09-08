@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtual envs
+venv/
+.env/
+.env*/
+
+# Editors/OS
+.vscode/
+.DS_Store
+
+# Large artifacts (use Releases/LFS if needed)
+*.mp4
+*.pt
+*.onnx
+*.tflite
+*.bin
