@@ -20,3 +20,15 @@ venv/
 *.onnx
 *.tflite
 *.bin
+venv/
+runs/
+yolo11n_ncnn_model/
+*.pt
+*.onnx
+*.tflite
+*.torchscript
+*.bin
+__pycache__/
+*.pyc
+.vscode/
+.DS_Store
