@@ -1,5 +1,6 @@
 import argparse
 from detection import yolo_detect
+from esp_comms import servo_control 
 # from esp_servos import servo_control   # you can use this later
 
 def main():
