@@ -1,5 +1,3 @@
-
-
 import cv2
 import time
 import numpy as np
@@ -62,7 +60,7 @@ def start_detection(args):
             classname = labels[classidx]
             conf = detections[i].conf.item()
 
-            # Only draw humans above threshold
+            # Draw any object above threshold
             if conf > args.thresh:
                 color = bbox_colors[classidx % len(bbox_colors)]
                 cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
@@ -80,7 +78,7 @@ def start_detection(args):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
         # Show the frame
-        cv2.imshow("YOLO Human Detection", frame)
+        cv2.imshow("YOLO Detection", frame)
 
         # Quit if 'q' pressed
         if cv2.waitKey(5) & 0xFF == ord('q'):
