@@ -1,4 +1,4 @@
-import cv2
+import cv2 # import OpenCV libraries 
 import time
 import numpy as np
 from ultralytics import YOLO
@@ -9,15 +9,20 @@ def start_detection(args):
     labels = model.names  # dictionary of class names (e.g., {0: 'person', 1: 'bicycle', ...})
 
     # Open webcam (0 = default camera)
-    cap = cv2.VideoCapture(0)
+    opencam = cv2.VideoCapture(0)
+
+
+    # The values of 3 and 4 are tied to OpenCV libraries 
+    # 3 - cv2.CAP_PROP_FRAME_WIDTH
+    # 4 - cv2.CAP_PROP_FRAME_HEIGHT
 
     # Set resolution if user specified it
     resize = False
     if args.resolution:
         resize = True
-        resW, resH = int(args.resolution.split('x')[0]), int(args.resolution.split('x')[1])
-        cap.set(3, resW)
-        cap.set(4, resH)
+        resW, resH = int(args.resolution.split('x')[0]), int(args.resolution.split('x')[1]) # this creates a canvas which can be coded to map the servos 
+        opencam.set(3, resW)
+        opencam.set(4, resH)
 
     # Bounding box colors
     bbox_colors = [(0, 255, 0), (0, 0, 255), (255, 0, 0)]  # green, red, blue
@@ -31,10 +36,10 @@ def start_detection(args):
 
     # Inference loop
     while True:
-        t_start = time.perf_counter()
+        t_start = time.perf_counter() # returns the value of a high resolution performance counter measured in fractional seconds
 
-        # Grab a frame from webcam
-        ret, frame = cap.read()
+        # Grab a frame from webcam applying ret -> boolean flag to make sure the frame is valid
+        ret, frame = opencam.read()
         if not ret:
             print("Unable to read from webcam. Exiting.")
             break
@@ -66,16 +71,14 @@ def start_detection(args):
                 cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
 
                 label = f'{classname}: {int(conf*100)}%'
-                cv2.putText(frame, label, (xmin, max(ymin-5, 15)),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+                cv2.putText(frame, label, (xmin, max(ymin-5, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
                 object_count += 1
 
         # Draw FPS
-        cv2.putText(frame, f'FPS: {avg_frame_rate:.2f}', (10, 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+        cv2.putText(frame, f'FPS: {avg_frame_rate:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+
         # Draw object count
-        cv2.putText(frame, f'Objects detected: {object_count}', (10, 45),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+        cv2.putText(frame, f'Objects detected: {object_count}', (10, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
         # Show the frame
         cv2.imshow("YOLO Detection", frame)
@@ -94,5 +97,5 @@ def start_detection(args):
         avg_frame_rate = np.mean(frame_rate_buffer)
 
     # Cleanup
-    cap.release()
+    opencam.release()
     cv2.destroyAllWindows()

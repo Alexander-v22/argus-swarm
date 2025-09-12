@@ -1,7 +1,6 @@
 import argparse
 from detection import yolo_detect
-from esp_comms import servo_control 
-# from esp_servos import servo_control   # you can use this later
+from esp_comms import uart_con 
 
 def main():
     parser = argparse.ArgumentParser()
@@ -14,3 +13,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
