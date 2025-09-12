@@ -24,16 +24,18 @@ void init_uart (void) {
         uart_config.data_bits = UART_DATA_8_BITS;
         uart_config.parity = UART_PARITY_DISABLE;
         uart_config.stop_bits = UART_STOP_BITS_1;
-        uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
         uart_config.rx_flow_ctrl_thresh = 122;
+        uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
 
-        
+
     // Confiugre UART parameters 
     uart_param_config(UART_PORT, &uart_config);
-    // Install UART driver using an event queue here
-    ESP_ERROR_CHECK(uart_driver_install(UART_PORT, UART_BUFFER, UART_BUFFER, 10, &uart_queue, 0));
+
     // Configuring pins. The last two can be replaced with 18, 19 for RTS , CTS
     ESP_ERROR_CHECK(uart_set_pin(UART_PORT, UART_TX_GPIO, UART_RX_GPIO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+
+    // Install UART driver using an event queue here(need to "wake up when new data arrives")
+    ESP_ERROR_CHECK(uart_driver_install(UART_PORT, UART_BUFFER, UART_BUFFER, 10, nullptr, 0));
     
     ESP_LOGI(TAG, "ESP32 UART configuration attempt");
 }

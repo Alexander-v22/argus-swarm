@@ -21,8 +21,11 @@ setup_ledc();
 init_uart();
 
     while(1){
-        std::string test_string = "Hello Pi 5, Im a better Microship loser";
-        uart_write_bytes(UART_PORT, test_string.c_str(), std::size(test_string));
+        std::string test_string = "Hello Pi 5, Im a better Microship loser\r\n";
+        uart_write_bytes(UART_PORT, test_string.c_str(), test_string.size());
+        ESP_LOGI("UART", "Message sent");
         vTaskDelay(pdMS_TO_TICKS(1000));
+
+
     }
 }
