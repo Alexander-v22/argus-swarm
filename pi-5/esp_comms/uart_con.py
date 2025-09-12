@@ -1,14 +1,15 @@
 import serial
 import time  
 
-ser = serial.Serial("/dev/serial0", 115200)
+ser = serial.Serial("/dev/serial0", 115200, timeout = 1)
 
-time.sleep(2)
+ser.reset_input_buffer()
+time.sleep(0.2)
 
 while True: 
-    received_data = ser.read()
-    data_left = ser.inWaiting()
-    received_data +=ser.read(data_left) # read the data on the Serial Port 
-    print (received_data)
-    ser.write(received_data) #transmit/ send data on Serial Port
+    n = ser.in_waiting  # how many bytes are buffered better than old code where we expected one byte
+    if n:
+        received_data = ser.read(n)  # read all available bytes
+        print(received_data.decode(errors="replace").strip())
+        ser.write(received_data)     # echo back
     time.sleep(0.03)
