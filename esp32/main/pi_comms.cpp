@@ -6,19 +6,16 @@ extern "C" {
 }
 
 #include <cstring>
-
+#include <vector>
 
 #define UART_TX_GPIO GPIO_NUM_17
 #define UART_RX_GPIO GPIO_NUM_16
 #define UART_PORT UART_NUM_1 //#define UART_PORT 1 -> this will compile as an int
 #define UART_BUFFER 1024
-const static char* TAG = "UART-ESP32 SIDE";
+const static char* TAG = "UART";
 
 
 void init_uart (void) {
-    QueueHandle_t uart_queue;
-
-
     uart_config_t uart_config = {};
         uart_config.baud_rate = 115200;
         uart_config.data_bits = UART_DATA_8_BITS;
@@ -35,9 +32,18 @@ void init_uart (void) {
     ESP_ERROR_CHECK(uart_set_pin(UART_PORT, UART_TX_GPIO, UART_RX_GPIO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 
     // Install UART driver using an event queue here(need to "wake up when new data arrives")
-    ESP_ERROR_CHECK(uart_driver_install(UART_PORT, UART_BUFFER, UART_BUFFER, 10, nullptr, 0));
+    ESP_ERROR_CHECK(uart_driver_install(UART_PORT, UART_BUFFER, UART_BUFFER, 0, nullptr,0));
     
-    ESP_LOGI(TAG, "ESP32 UART configuration attempt");
+    ESP_LOGI(TAG, "ESP32 UART configured");
 }
 
+void read_data(void){
 
+  std::vector<uint8_t>rx_buf(UART_BUFFER);
+  int len = uart_read_bytes(UART_PORT, rx_buf.data(), rx_buf.size(), pdMS_TO_TICKS(20));
+
+  if(len < rx_buf.size()) {
+    ESP_LOGI(TAG, "Pi said: %s", (char*)rx_buf.data());
+  }
+
+}

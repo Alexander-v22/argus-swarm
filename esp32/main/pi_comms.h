@@ -12,4 +12,6 @@ extern "C" {
 #define UART_PORT UART_NUM_1 //#define UART_PORT 1 -> this will compile as an int
 #define UART_BUFFER 1024
 
+
 void init_uart (void);
+void read_data (void);
