@@ -9,10 +9,7 @@ def start_detection(args):
     labels = model.names  # dictionary of class names (e.g., {0: 'person', 1: 'bicycle', ...})
 
     # Open webcam (0 = default camera)
-    opencam = cv2.VideoCapture(1)
-
-    if not opencam.isOpened():
-        raise RuntimeError("Camera 0 didn’t open.")
+    opencam = cv2.VideoCapture(0)
 
 
     # The values of 3 and 4 are tied to OpenCV libraries 
