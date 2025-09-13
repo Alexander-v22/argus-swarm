@@ -38,7 +38,6 @@ void init_uart (void) {
 }
 
 void read_data(void){
-
   std::vector<uint8_t>rx_buf(UART_BUFFER);
   int len = uart_read_bytes(UART_PORT, rx_buf.data(), rx_buf.size(), pdMS_TO_TICKS(20));
   ESP_LOGW(TAG, "%d", len);
