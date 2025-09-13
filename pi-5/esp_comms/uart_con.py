@@ -13,13 +13,19 @@ ser = serial.Serial(
     xonxoff=False   # and SW flow control is OFF
 )
 
-test_string = "Hello ESP32\r\n"
-ser.reset_input_buffer(); ser.reset_output_buffer()
+#test_string = "Hello ESP32\r\n"
 time.sleep(0.2)
+ser.reset_input_buffer()
+ser.reset_output_buffer()
+
+#setting Data Terminal Ready and Request to Send high
+set.setDTR(True)
+set.setRTS(True)
 
 
-while True: 
-    n = ser.write(test_string.encode("utf-8"))
-    print ("Sent", n, "bytes")
+for i in range(5):
+    ser.write(b"ping %d\n" % i)
     ser.flush()
- 
+    time.sleep(0.1)
+    data = ser.read(64)              # <-- actually read it back
+    print("wrote ping %d, read:" % i, data)
