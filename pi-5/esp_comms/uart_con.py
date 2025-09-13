@@ -19,8 +19,8 @@ ser.reset_input_buffer()
 ser.reset_output_buffer()
 
 #setting Data Terminal Ready and Request to Send high
-set.setDTR(True)
-set.setRTS(True)
+ser.setDTR(True)
+ser.setRTS(True)
 
 
 for i in range(5):
