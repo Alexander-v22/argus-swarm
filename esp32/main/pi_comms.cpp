@@ -44,7 +44,7 @@ void read_data(void){
   ESP_LOGW(TAG, "%d", len);
 
   if(len > 0 ) {
-
     if (len < (int)rx_buf.size()) rx_buf[len] = '\0';
-    ESP_LOGI(TAG, "Pi said (%d): %s", len, (char*)rx_buf.data());  }
+    ESP_LOGI(TAG, "Pi said (%d): %s", len, (char*)rx_buf.data()); 
+   }
 }
