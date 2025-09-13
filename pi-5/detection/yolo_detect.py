@@ -11,6 +11,9 @@ def start_detection(args):
     # Open webcam (0 = default camera)
     opencam = cv2.VideoCapture(0)
 
+    if not opencam.isOpened():
+        raise RuntimeError("Camera 0 didn’t open.")
+
 
     # The values of 3 and 4 are tied to OpenCV libraries 
     # 3 - cv2.CAP_PROP_FRAME_WIDTH
