@@ -41,9 +41,12 @@ void read_data(void){
 
   std::vector<uint8_t>rx_buf(UART_BUFFER);
   int len = uart_read_bytes(UART_PORT, rx_buf.data(), rx_buf.size(), pdMS_TO_TICKS(20));
+  ESP_LOGW(TAG, "%d", len);
 
-  if(len < rx_buf.size()) {
-    ESP_LOGI(TAG, "Pi said: %s", (char*)rx_buf.data());
+  if(len > 0 ) {
+    
+    if (len < (int)rx_buf.size()) rx_buf[len] = '\0';
+    ESP_LOGI(TAG, "Pi said: %d", (char*)rx_buf.data());
   }
 
 }
