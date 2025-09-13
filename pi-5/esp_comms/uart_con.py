@@ -23,9 +23,7 @@ ser.setDTR(True)
 ser.setRTS(True)
 
 
-for i in range(5):
-    ser.write(b"ping %d\n" % i)
+while True:
+    ser.write(b"Hello ESP32\n")
     ser.flush()
-    time.sleep(0.1)
-    data = ser.read(64)              # <-- actually read it back
-    print("wrote ping %d, read:" % i, data)
+    time.sleep(0.25)
