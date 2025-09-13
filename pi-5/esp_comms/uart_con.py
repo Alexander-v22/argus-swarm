@@ -1,15 +1,25 @@
 import serial
 import time  
 
-ser = serial.Serial("/dev/serial0", 115200, timeout = 1)
+ser = serial.Serial(
+    "/dev/ttyAMA0",
+    baudrate=115200,
+    bytesize=serial.EIGHTBITS,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE,
+    timeout=1,
+    rtscts=False,   # make sure HW flow control is OFF
+    dsrdtr=False,
+    xonxoff=False   # and SW flow control is OFF
+)
 
-ser.reset_input_buffer()
+test_string = "Hello ESP32\r\n"
+ser.reset_input_buffer(); ser.reset_output_buffer()
 time.sleep(0.2)
 
+
 while True: 
-    n = ser.in_waiting  # how many bytes are buffered better than old code where we expected one byte
-    if n:
-        received_data = ser.read(n)  # read all available bytes
-        print(received_data.decode(errors="replace").strip())
-        ser.write(received_data)     # echo back
-    time.sleep(0.03)
+    n = ser.write(test_string.encode("utf-8"))
+    print ("Sent", n, "bytes")
+    ser.flush()
+ 
