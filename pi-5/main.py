@@ -1,6 +1,6 @@
 import argparse
 from detection import yolo_detect
-from esp_comms import uart_con 
+# from esp_comms import uart_con 
 
 def main():
     parser = argparse.ArgumentParser()
