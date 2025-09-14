@@ -1,6 +1,14 @@
 import argparse
 from detection import yolo_detect
-# from esp_comms import uart_con 
+
+def start_uart_thread():
+    def _runner():
+        # import happens inside the thread; its top-level loop runs here
+        import esp_comms.uart_con  # do NOT import this at the top of main.py
+    t = threading.Thread(target=_runner, daemon=True)
+    t.start()
+    return t
+
 
 def main():
     parser = argparse.ArgumentParser()
