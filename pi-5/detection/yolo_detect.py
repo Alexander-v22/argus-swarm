@@ -3,6 +3,9 @@ import time
 import numpy as np
 from ultralytics import YOLO
 
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+
 def start_detection(args):
     # Load YOLO model
     model = YOLO(args.model, task='detect')
@@ -32,70 +35,89 @@ def start_detection(args):
     frame_rate_buffer = []
     fps_avg_len = 100
 
-    print("Press 'q' to quit.")
 
+
+
+
+    
     # Inference loop
-    while True:
-        t_start = time.perf_counter() # returns the value of a high resolution performance counter measured in fractional seconds
+    def start_stream():
+        while True:
+            t_start = time.perf_counter() # returns the value of a high resolution performance counter measured in fractional seconds
 
-        # Grab a frame from webcam applying ret -> boolean flag to make sure the frame is valid
-        ret, frame = opencam.read()
-        if not ret:
-            print("Unable to read from webcam. Exiting.")
-            break
+            # Grab a frame from webcam applying ret -> boolean flag to make sure the frame is valid
+            ret, frame = opencam.read() # "," tuple packing allowing to set ret and frame the same value
 
-        # Resize if requested
-        if resize:
-            frame = cv2.resize(frame, (resW, resH))
+            if not ret:
+                print("Unable to read from webcam. Exiting.")
+                break
 
-        # Run YOLO detection
-        results = model(frame, verbose=False)
-        detections = results[0].boxes
+            # Resize if requested
+            if resize:
+                frame = cv2.resize(frame, (resW, resH))
 
-        object_count = 0
+            # Run YOLO detection
+            results = model(frame, verbose=False)
+            detections = results[0].boxes
 
-        # Loop through detections
-        for i in range(len(detections)):
-            # Get bounding box
-            xyxy = detections[i].xyxy.cpu().numpy().squeeze().astype(int)
-            xmin, ymin, xmax, ymax = xyxy
+            object_count = 0
 
-            # Get class and confidence
-            classidx = int(detections[i].cls.item())
-            classname = labels[classidx]
-            conf = detections[i].conf.item()
+            # Loop through detections
+            for i in range(len(detections)):
+                # Get bounding box
+                xyxy = detections[i].xyxy.cpu().numpy().squeeze().astype(int)
+                xmin, ymin, xmax, ymax = xyxy
 
-            # Draw any object above threshold
-            if conf > args.thresh:
-                color = bbox_colors[classidx % len(bbox_colors)]
-                cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
+                # Get class and confidence
+                classidx = int(detections[i].cls.item())
+                classname = labels[classidx]
+                conf = detections[i].conf.item()
 
-                label = f'{classname}: {int(conf*100)}%'
-                cv2.putText(frame, label, (xmin, max(ymin-5, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-                object_count += 1
+                # Draw any object above threshold
+                if conf > args.thresh:
+                    color = bbox_colors[classidx % len(bbox_colors)]
+                    cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
 
-        # Draw FPS
-        cv2.putText(frame, f'FPS: {avg_frame_rate:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+                    label = f'{classname}: {int(conf*100)}%'
+                    cv2.putText(frame, label, (xmin, max(ymin-5, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+                    object_count += 1
+                      # Calculate FPS
 
-        # Draw object count
-        cv2.putText(frame, f'Objects detected: {object_count}', (10, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            # Draw FPS
+            t_stop = time.perf_counter()
+            frame_rate_calc = 1.0 / (t_stop - t_start)
 
-        # Show the frame
-        cv2.imshow("YOLO Detection", frame)
+            if len(frame_rate_buffer) >= fps_avg_len:
+                frame_rate_buffer.pop(0)
+            frame_rate_buffer.append(frame_rate_calc)
+            avg_frame_rate = np.mean(frame_rate_buffer)
 
-        # Quit if 'q' pressed
-        if cv2.waitKey(5) & 0xFF == ord('q'):
-            break
+            # Draw FPS count on screen 
+            cv2.putText(frame, f'FPS: {avg_frame_rate:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
-        # Calculate FPS
-        t_stop = time.perf_counter()
-        frame_rate_calc = 1.0 / (t_stop - t_start)
+            # Draw object count
+            cv2.putText(frame, f'Objects detected: {object_count}', (10, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
-        if len(frame_rate_buffer) >= fps_avg_len:
-            frame_rate_buffer.pop(0)
-        frame_rate_buffer.append(frame_rate_calc)
-        avg_frame_rate = np.mean(frame_rate_buffer)
+            ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+            if not ok:
+                continue
+            jpg = buf.tobytes()
+            yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + jpg + b"\r\n")
+
+
+
+    app = FastAPI()
+    @app.get("/video")
+    def video():
+        return StreamingResponse(start_stream(), media_type="multipart/x-mixed-replace; boundary=frame")
+    
 
     # Cleanup
-    opencam.release()
-    cv2.destroyAllWindows()
+    def cleanup():
+        try:
+            opencam.release()
+            cv2.destroyAllWindows()
+        except Exception:
+            pass
+
+    return app, cleanup
