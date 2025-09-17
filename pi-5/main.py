@@ -1,4 +1,5 @@
 import argparse
+import uvicorn 
 from detection import yolo_detect
 
 def start_uart_thread():
