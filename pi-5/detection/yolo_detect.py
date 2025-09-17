@@ -3,7 +3,7 @@ import time
 import numpy as np
 from ultralytics import YOLO
 
-from fastapi import FastAPI
+from fastapi import FastAPI 
 from fastapi.responses import StreamingResponse
 
 def start_detection(args):
@@ -12,7 +12,10 @@ def start_detection(args):
     labels = model.names  # dictionary of class names (e.g., {0: 'person', 1: 'bicycle', ...})
 
     # Open webcam (0 = default camera)
-    opencam = cv2.VideoCapture(0)
+    opencam = cv2.VideoCapture(0, cv2.CAP_V4L2)
+    opencam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+    opencam.set(cv2.CAP_PROP_FPS, 30)
+    opencam.set(cv2.CAP_PROP_BUFFERSIZE, 1) 
 
 
     # The values of 3 and 4 are tied to OpenCV libraries 
@@ -26,7 +29,10 @@ def start_detection(args):
         resW, resH = int(args.resolution.split('x')[0]), int(args.resolution.split('x')[1]) # this creates a canvas which can be coded to map the servos 
         opencam.set(3, resW)
         opencam.set(4, resH)
+    if not opencam.isOpened():
+        raise RuntimeError("Unable to find camera(/dev/video).")        
 
+    
     # Bounding box colors
     bbox_colors = [(0, 255, 0), (0, 0, 255), (255, 0, 0)]  # green, red, blue
 
@@ -35,22 +41,33 @@ def start_detection(args):
     frame_rate_buffer = []
     fps_avg_len = 100
 
+    DETECT_EVERY = 2
+    frame_i = 0
+    last_boxes = None
 
-
-
-
-    
     # Inference loop
     def start_stream():
+        nonlocal avg_frame_rate, frame_i, last_boxes 
         while True:
             t_start = time.perf_counter() # returns the value of a high resolution performance counter measured in fractional seconds
 
             # Grab a frame from webcam applying ret -> boolean flag to make sure the frame is valid
             ret, frame = opencam.read() # "," tuple packing allowing to set ret and frame the same value
 
+            run_det = (frame_i) % DETECT_EVERY == 0
             if not ret:
-                print("Unable to read from webcam. Exiting.")
-                break
+                print("Unable to read from webcam. Trying Again.")
+                time.sleep(0.02)
+                continue
+                
+
+            if run_det:
+                results = model(frame, verbose=False)
+                last_boxes = results[0].boxes
+
+            detections = last_boxes
+            frame_i += 1
+
 
             # Resize if requested
             if resize:
@@ -86,7 +103,6 @@ def start_detection(args):
             # Draw FPS
             t_stop = time.perf_counter()
             frame_rate_calc = 1.0 / (t_stop - t_start)
-
             if len(frame_rate_buffer) >= fps_avg_len:
                 frame_rate_buffer.pop(0)
             frame_rate_buffer.append(frame_rate_calc)
@@ -107,9 +123,14 @@ def start_detection(args):
 
 
     app = FastAPI()
-    @app.get("/video")
+    
+    @app.get("/video")    
     def video():
-        return StreamingResponse(start_stream(), media_type="multipart/x-mixed-replace; boundary=frame")
+        return StreamingResponse(
+            start_stream(),
+            media_type="multipart/x-mixed-replace; boundary=frame"
+        )
+
     
 
     # Cleanup
