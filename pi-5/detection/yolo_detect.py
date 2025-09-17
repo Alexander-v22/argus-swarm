@@ -60,22 +60,18 @@ def start_detection(args):
                 time.sleep(0.02)
                 continue
                 
+            # Resize if requested
+            if resize:
+                frame = cv2.resize(frame, (resW, resH))
 
+            # Run YOLO detection
+            run_det = (frame_i % DETECT_EVERY == 0)
             if run_det:
                 results = model(frame, verbose=False)
                 last_boxes = results[0].boxes
 
             detections = last_boxes
             frame_i += 1
-
-
-            # Resize if requested
-            if resize:
-                frame = cv2.resize(frame, (resW, resH))
-
-            # Run YOLO detection
-            results = model(frame, verbose=False)
-            detections = results[0].boxes
 
             object_count = 0
 
@@ -123,7 +119,7 @@ def start_detection(args):
 
 
     app = FastAPI()
-    
+
     @app.get("/video")    
     def video():
         return StreamingResponse(
