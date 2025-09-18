@@ -8,22 +8,24 @@ ser = serial.Serial(
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
     timeout=1,
-    rtscts=False,   # make sure HW flow control is OFF
+    rtscts=False,   
     dsrdtr=False,
-    xonxoff=False   # and SW flow control is OFF
+    xonxoff=False   
 )
 
-#test_string = "Hello ESP32\r\n"
+# need these for my UART connection to work 
 time.sleep(0.2)
 ser.reset_input_buffer()
 ser.reset_output_buffer()
-
-#setting Data Terminal Ready and Request to Send high
+#setting Data Terminal Ready and Request to Send high like the MINICOM work space
 ser.setDTR(True)
 ser.setRTS(True)
 
+# self --> refrence to the object itself
+def send_angles (self, pan, tilt):
+    msg = f"{int(pan)},{int(tilt)}\n"
+    self.ser.write(msg.encode)
+    self.ser.flush() # forces any data lingering in the output buffer to be sent immediately through the serial port
 
-while True:
-    ser.write(b"Hello ESP32\n")
-    ser.flush()
-    time.sleep(0.25)
+def close(self):
+    self.ser.flush()

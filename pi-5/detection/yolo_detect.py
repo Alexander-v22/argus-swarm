@@ -1,14 +1,18 @@
 import cv2 # import OpenCV libraries 
 import time
+import serial
 import numpy as np
 from ultralytics import YOLO
 
 from fastapi import FastAPI 
 from fastapi.responses import StreamingResponse
+from esp_comms import ESP32UART
+
+
 
 def start_detection(args):
     # Load YOLO model
-    model = YOLO(args.model, task='detect')
+    model = YOLO(args.model) # --> model im using 
     labels = model.names  # dictionary of class names (e.g., {0: 'person', 1: 'bicycle', ...})
 
     # Open webcam (0 = default camera)
@@ -16,7 +20,6 @@ def start_detection(args):
     opencam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
     opencam.set(cv2.CAP_PROP_FPS, 30)
     opencam.set(cv2.CAP_PROP_BUFFERSIZE, 1) 
-
 
     # The values of 3 and 4 are tied to OpenCV libraries 
     # 3 - cv2.CAP_PROP_FRAME_WIDTH
@@ -29,10 +32,10 @@ def start_detection(args):
         resW, resH = int(args.resolution.split('x')[0]), int(args.resolution.split('x')[1]) # this creates a canvas which can be coded to map the servos 
         opencam.set(3, resW)
         opencam.set(4, resH)
+
     if not opencam.isOpened():
         raise RuntimeError("Unable to find camera(/dev/video).")        
 
-    
     # Bounding box colors
     bbox_colors = [(0, 255, 0), (0, 0, 255), (255, 0, 0)]  # green, red, blue
 
@@ -45,9 +48,15 @@ def start_detection(args):
     frame_i = 0
     last_boxes = None
 
+    #setting up UART communications/servo start up 
+    uart = ESP32UART("/dev/ttyUSB0", 115200, timeout=0.5)
+    pan_angle = 90
+    tilt_angle = 90
+    uart.send_angles(pan_angle,tilt_angle) 
+
     # Inference loop
     def start_stream():
-        nonlocal avg_frame_rate, frame_i, last_boxes 
+        nonlocal avg_frame_rate, frame_i, last_boxes, tilt_angle, pan_angle
         while True:
             t_start = time.perf_counter() # returns the value of a high resolution performance counter measured in fractional seconds
 
@@ -64,28 +73,27 @@ def start_detection(args):
             if resize:
                 frame = cv2.resize(frame, (resW, resH))
 
-            # Run YOLO detection 
-            # This is skipping/ reading every other frame 
+            # Run YOLO detection --> skipping/reading every other frame 
             run_det = (frame_i % DETECT_EVERY == 0)
             if run_det:
-                results = model(frame, verbose=False)
+                results = model.track(frame, persist=True, tracker="botsort.yaml", verbose=False)
                 last_boxes = results[0].boxes
-
-            detections = last_boxes
+            detections = last_boxes            
             frame_i += 1
 
-            t_stop = time.perf_counter()
-            frame_rate_calc = 1 / (t_stop- t_start)
 
-            # Becuase im streaming this i have to calc fps outside of my detection loop 
+
+            # Calc FPS outside of streaming loop 
+            t_stop = time.perf_counter()
+            frame_rate_calc = 1 / (t_stop- t_start)            
             if len(frame_rate_buffer) >= fps_avg_len:
                 frame_rate_buffer.pop(0)
             frame_rate_buffer.append(frame_rate_calc)
             avg_frame_rate = np.mean(frame_rate_buffer)
 
 
-            object_count = 0
 
+            object_count = 0
             # Loop through detections
             for i in range(len(detections)):
                 # Get bounding box
@@ -106,6 +114,34 @@ def start_detection(args):
                     cv2.putText(frame, label, (xmin, max(ymin-5, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
                     object_count += 1
 
+
+
+                # Calc the center of the frame to send to servos 
+                cenx = (xmax + xmin) // 2
+                ceny = (ymax + ymin ) //2
+
+                # Calc "error" form center more like Dist
+                distx = cenx - (resW // 2)
+                disty = ceny - (resH // 2)
+
+                # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
+                kp = 0.5
+                pan_angle -= distx * kp
+                tilt_angle += disty * kp
+
+                #clamp the servo angles to ensure remove outliers 
+                pan_angle =  max(0, min(180, pan_angle))
+                tilt_angle =  max(0, min(180, tilt_angle))
+                
+                uart.send_angles(pan_angle,tilt_angle) 
+
+
+                
+                if object_count == 0:
+                    pan_angle = 90
+                    tilt_angle = 90
+                    uart.send_angles(pan_angle,tilt_angle) 
+            
             # Draw FPS count on screen 
             cv2.putText(frame, f'FPS: {frame_rate_calc:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
@@ -128,8 +164,6 @@ def start_detection(args):
             start_stream(),
             media_type="multipart/x-mixed-replace; boundary=frame"
         )
-
-    
 
     # Cleanup
     def cleanup():
