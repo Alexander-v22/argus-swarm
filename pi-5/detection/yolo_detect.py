@@ -115,7 +115,7 @@ def start_detection(args):
 
                     if conf > best_conf:                    
                         best_conf = conf
-                        best_det(xmin, ymin, xmax, ymax)
+                        best_det = (xmin, ymin, xmax, ymax)
 
 
 
