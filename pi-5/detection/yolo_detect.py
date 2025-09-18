@@ -132,21 +132,21 @@ def start_detection(args):
                 # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
                 kp = 0.1
                 if(abs(distx) > 20 or abs(disty) > 20 ):
-                    pan_angle += distx * kp
-                    tilt_angle -= disty * kp
+                    pan_angle -= distx * kp
+                    tilt_angle += disty * kp
 
                 #clamp the servo angles to ensure remove outliers 
                 pan_angle =  max(0, min(180, pan_angle))
                 tilt_angle =  max(0, min(180, tilt_angle))
                 
-                uart.send_angles(pan_angle,tilt_angle) 
+                uart.send_angles(pan_angle, tilt_angle) 
 
 
                 
-                # if object_count == 0:
-                #     pan_angle = 90
-                #     tilt_angle = 90
-                #     uart.send_angles(pan_angle,tilt_angle) 
+                if object_count == 0:
+                    pan_angle = 10
+                    tilt_angle = 90
+                    uart.send_angles(pan_angle,tilt_angle) 
             
             # Draw FPS count on screen 
             cv2.putText(frame, f'FPS: {frame_rate_calc:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (173, 216, 230), 2)
