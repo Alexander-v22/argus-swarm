@@ -121,6 +121,7 @@ def start_detection(args):
 
                 # Calc the center of the frame to send to servos 
             if best_det is not None:
+                xmin, ymin, xmax, ymax = best_det
                 cenx = (xmax + xmin) // 2
                 ceny = (ymax + ymin ) //2
 
@@ -131,8 +132,8 @@ def start_detection(args):
                 # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
                 kp = 0.1
                 if(abs(distx) > 20 or abs(disty) > 20 ):
-                    pan_angle -= distx * kp
-                    tilt_angle += disty * kp
+                    pan_angle += distx * kp
+                    tilt_angle -= disty * kp
 
                 #clamp the servo angles to ensure remove outliers 
                 pan_angle =  max(0, min(180, pan_angle))
