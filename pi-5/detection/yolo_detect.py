@@ -1,6 +1,5 @@
 import cv2 # import OpenCV libraries 
 import time
-import serial
 import numpy as np
 from ultralytics import YOLO
 
