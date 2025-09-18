@@ -105,7 +105,7 @@ def start_detection(args):
                 conf = detections[i].conf.item()
 
                 # Draw any object above threshold
-                if conf > args.thresh:
+                if conf > args.thresh and classname == "person":
                     color = bbox_colors[classidx % len(bbox_colors)]
                     cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), color, 2)
 
