@@ -4,12 +4,12 @@ import time
 class ESP32UART:
     def __init__(self, port="/dev/ttyUSB0", baudrate=115200, timeout=1):
         ser = serial.Serial(
-            "/dev/ttyAMA0",
-            baudrate=115200,
+            port,
+            baudrate = baudrate,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            timeout=1,
+            timeout = timeout,
             rtscts=False,   
             dsrdtr=False,
             xonxoff=False   
@@ -31,3 +31,4 @@ class ESP32UART:
 
         def close(self):
             self.ser.flush()
+            self.ser.close()
