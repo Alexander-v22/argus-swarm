@@ -1,7 +1,7 @@
 import argparse
 import uvicorn 
 from detection import yolo_detect
-c
+
 
 
 def main():
