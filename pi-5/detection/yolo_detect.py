@@ -91,6 +91,8 @@ def start_detection(args):
 
 
             object_count = 0
+            best_det = None; # a pointer that points to the same place in memory type None Class
+            best_conf = 0
             # Loop through detections
             for i in range(len(detections)):
                 # Get bounding box
@@ -111,28 +113,32 @@ def start_detection(args):
                     cv2.putText(frame, label, (xmin, max(ymin-5, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
                     object_count += 1
 
+                    if conf > best_conf:                    
+                        best_conf = conf
+                        best_det(xmin, ymin, xmax, ymax)
+
 
 
                 # Calc the center of the frame to send to servos 
+            if best_det is not None:
+                cenx = (xmax + xmin) // 2
+                ceny = (ymax + ymin ) //2
+
+                # Calc "error" form center more like Dist
+                distx = cenx - (resW // 2)
+                disty = ceny - (resH // 2)
+
+                # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
+                kp = 0.1
+                if(abs(distx) > 20 or abs(disty) > 20 ):
+                    pan_angle -= distx * kp
+                    tilt_angle += disty * kp
+
+                #clamp the servo angles to ensure remove outliers 
+                pan_angle =  max(0, min(180, pan_angle))
+                tilt_angle =  max(0, min(180, tilt_angle))
                 
-            cenx = (xmax + xmin) // 2
-            ceny = (ymax + ymin ) //2
-
-            # Calc "error" form center more like Dist
-            distx = cenx - (resW // 2)
-            disty = ceny - (resH // 2)
-
-            # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
-            kp = 0.1
-            if(abs(distx) > 20 or abs(disty) > 20 ):
-                pan_angle -= distx * kp
-                tilt_angle += disty * kp
-
-            #clamp the servo angles to ensure remove outliers 
-            pan_angle =  max(0, min(180, pan_angle))
-            tilt_angle =  max(0, min(180, tilt_angle))
-            
-            uart.send_angles(pan_angle,tilt_angle) 
+                uart.send_angles(pan_angle,tilt_angle) 
 
 
                 
