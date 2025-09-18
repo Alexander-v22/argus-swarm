@@ -2,7 +2,7 @@ import serial
 import time  
 
 class ESP32UART:
-    def __init__(self, port="/dev/ttyUSB0", baudrate=115200, timeout=1):
+    def __init__(self, port="/dev/ttyAMA0", baudrate=115200, timeout=1):
         ser = serial.Serial(
             port,
             baudrate = baudrate,
