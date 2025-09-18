@@ -11,7 +11,8 @@
 
 
 
-#define SERVO_PAN_GPIO 13
+#define SERVO_PAN_GPIO GPIO_NUM_25
+#define SERVO_TILT_GPIO GPIO_NUM_26
 #define SERVO_MAX_US 2500 // the max PWM singal range
 #define SERVO_MIN_US 1200// the mine PWm singal range
 
@@ -62,7 +63,7 @@ uint32_t angle_to_ledc_counts(uint8_t angle){
 
 void servo_update(uint8_t deg_pan, uint8_t deg_tilt) {
     uint32_t pan = angle_to_ledc_counts(deg_pan);
-    uint32_t tilt = angle_to_ledc_counts(deg_pan);
+    uint32_t tilt = angle_to_ledc_counts(deg_tilt);
  
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, pan);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);

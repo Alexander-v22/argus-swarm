@@ -3,10 +3,13 @@ extern "C" {
   #include "driver/gpio.h"
   #include "esp_log.h"
   #include "sdkconfig.h"
+  #include "servo.h"
+
 }
 
 #include <cstring>
 #include <vector>
+#include <sstream> 
 
 #define UART_TX_GPIO GPIO_NUM_17
 #define UART_RX_GPIO GPIO_NUM_16
@@ -39,8 +42,25 @@ void read_data(void){
   int len = uart_read_bytes(UART_PORT, rx_buf.data(), rx_buf.size(), pdMS_TO_TICKS(20));
   ESP_LOGW(TAG, "%d", len);
 
+  std::string input((char*)rx_buf.data());
+  std::stringstream ss(input);
+
   if(len > 0 ) {
+
+    //safety measure terminate if buffer is zero 
     if (len < (int)rx_buf.size()) rx_buf[len] = '\0';
-    ESP_LOGI(TAG, "Pi said (%d): %s", len, (char*)rx_buf.data()); 
+      
+    int deg_pan = 0, deg_tilt = 0;
+    char comma;
+    
+    if( ss >> deg_pan>> comma >> deg_tilt){
+      ESP_LOGI(TAG,"Coords Recieved: pan = %d , tilt =%d", deg_pan ,deg_tilt);
+      servo_update(deg_pan, deg_tilt);
+
+    }  
+  
+
+
+
    }
 }

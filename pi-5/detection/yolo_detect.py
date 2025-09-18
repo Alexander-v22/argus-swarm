@@ -136,10 +136,10 @@ def start_detection(args):
 
 
                 
-                if object_count == 0:
-                    pan_angle = 90
-                    tilt_angle = 90
-                    uart.send_angles(pan_angle,tilt_angle) 
+                # if object_count == 0:
+                #     pan_angle = 90
+                #     tilt_angle = 90
+                #     uart.send_angles(pan_angle,tilt_angle) 
             
             # Draw FPS count on screen 
             cv2.putText(frame, f'FPS: {frame_rate_calc:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (173, 216, 230), 2)
