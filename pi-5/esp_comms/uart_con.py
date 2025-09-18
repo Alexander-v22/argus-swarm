@@ -26,7 +26,7 @@ class ESP32UART:
         # self --> refrence to the object itself
     def send_angles(self, pan, tilt):
         msg = f"{int(pan)},{int(tilt)}\n"
-        self.ser.write(msg.encode)
+        self.ser.write(msg.encode("utf-8"))
         self.ser.flush() # forces any data lingering in the output buffer to be sent immediately through the serial port
 
     def close(self):
