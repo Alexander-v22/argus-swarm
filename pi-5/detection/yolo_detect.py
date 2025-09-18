@@ -52,7 +52,7 @@ def start_detection(args):
             t_start = time.perf_counter() # returns the value of a high resolution performance counter measured in fractional seconds
 
             # Grab a frame from webcam applying ret -> boolean flag to make sure the frame is valid
-            ret, frame = opencam.read() # "," tuple packing allowing to set ret and frame the same value
+            ret, frame = opencam.read() # "," --> "tuple packing" --> allowing to set ret and frame the same value
 
             run_det = (frame_i) % DETECT_EVERY == 0
             if not ret:
@@ -64,7 +64,8 @@ def start_detection(args):
             if resize:
                 frame = cv2.resize(frame, (resW, resH))
 
-            # Run YOLO detection
+            # Run YOLO detection 
+            # This is skipping/ reading every other frame 
             run_det = (frame_i % DETECT_EVERY == 0)
             if run_det:
                 results = model(frame, verbose=False)
@@ -72,6 +73,10 @@ def start_detection(args):
 
             detections = last_boxes
             frame_i += 1
+
+            t_stop = time.perf_counter 
+
+            frame_rate_calc = 1 / (t_stop- t_start)
 
             object_count = 0
 
@@ -105,7 +110,7 @@ def start_detection(args):
             avg_frame_rate = np.mean(frame_rate_buffer)
 
             # Draw FPS count on screen 
-            cv2.putText(frame, f'FPS: {avg_frame_rate:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            cv2.putText(frame, f'FPS: {frame_rate_calc:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
             # Draw object count
             cv2.putText(frame, f'Objects detected: {object_count}', (10, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
