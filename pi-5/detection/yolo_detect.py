@@ -11,7 +11,7 @@ from esp_comms.uart_con import ESP32UART
 
 def start_detection(args):
     # Load YOLO model
-    model = YOLO(args.model) # --> model im using 
+    model = YOLO(args.model, task = "detect") # --> model im using 
     labels = model.names  # dictionary of class names (e.g., {0: 'person', 1: 'bicycle', ...})
 
     # Open webcam (0 = default camera)
