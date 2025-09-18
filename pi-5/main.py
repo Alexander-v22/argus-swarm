@@ -16,6 +16,8 @@ def main():
 
     try:
         uvicorn.run(app, host="0.0.0.0", port=args.port, log_level="warning")
+    except KeyboardInterrupt: 
+        print("Endding Video Stream")
     finally:
         cleanup()
 
