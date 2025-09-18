@@ -80,8 +80,6 @@ def start_detection(args):
             detections = last_boxes            
             frame_i += 1
 
-
-
             # Calc FPS outside of streaming loop 
             t_stop = time.perf_counter()
             frame_rate_calc = 1 / (t_stop- t_start)            
@@ -116,23 +114,25 @@ def start_detection(args):
 
 
                 # Calc the center of the frame to send to servos 
-                cenx = (xmax + xmin) // 2
-                ceny = (ymax + ymin ) //2
+                
+            cenx = (xmax + xmin) // 2
+            ceny = (ymax + ymin ) //2
 
-                # Calc "error" form center more like Dist
-                distx = cenx - (resW // 2)
-                disty = ceny - (resH // 2)
+            # Calc "error" form center more like Dist
+            distx = cenx - (resW // 2)
+            disty = ceny - (resH // 2)
 
-                # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
-                kp = 0.5
+            # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
+            kp = 0.1
+            if(abs(distx) > 20 or abs(disty) > 20 ):
                 pan_angle -= distx * kp
                 tilt_angle += disty * kp
 
-                #clamp the servo angles to ensure remove outliers 
-                pan_angle =  max(0, min(180, pan_angle))
-                tilt_angle =  max(0, min(180, tilt_angle))
-                
-                uart.send_angles(pan_angle,tilt_angle) 
+            #clamp the servo angles to ensure remove outliers 
+            pan_angle =  max(0, min(180, pan_angle))
+            tilt_angle =  max(0, min(180, tilt_angle))
+            
+            uart.send_angles(pan_angle,tilt_angle) 
 
 
                 
