@@ -74,8 +74,7 @@ def start_detection(args):
             detections = last_boxes
             frame_i += 1
 
-            t_stop = time.perf_counter 
-
+            t_stop = time.perf_counter()
             frame_rate_calc = 1 / (t_stop- t_start)
 
             object_count = 0
