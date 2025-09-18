@@ -27,13 +27,10 @@ void init_uart (void) {
 
     // Confiugre UART parameters 
     uart_param_config(UART_PORT, &uart_config);
-
     // Configuring pins. The last two can be replaced with 18, 19 for RTS , CTS
     ESP_ERROR_CHECK(uart_set_pin(UART_PORT, UART_TX_GPIO, UART_RX_GPIO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-
     // Install UART driver using an event queue here(need to "wake up when new data arrives")
     ESP_ERROR_CHECK(uart_driver_install(UART_PORT, UART_BUFFER, UART_BUFFER, 0, nullptr,0));
-    
     ESP_LOGI(TAG, "ESP32 UART configured");
 }
 
