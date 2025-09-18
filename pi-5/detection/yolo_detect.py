@@ -77,6 +77,13 @@ def start_detection(args):
             t_stop = time.perf_counter()
             frame_rate_calc = 1 / (t_stop- t_start)
 
+            # Becuase im streaming this i have to calc fps outside of my detection loop 
+            if len(frame_rate_buffer) >= fps_avg_len:
+                frame_rate_buffer.pop(0)
+            frame_rate_buffer.append(frame_rate_calc)
+            avg_frame_rate = np.mean(frame_rate_buffer)
+
+
             object_count = 0
 
             # Loop through detections
@@ -98,15 +105,6 @@ def start_detection(args):
                     label = f'{classname}: {int(conf*100)}%'
                     cv2.putText(frame, label, (xmin, max(ymin-5, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
                     object_count += 1
-                      # Calculate FPS
-
-            # Draw FPS
-            t_stop = time.perf_counter()
-            frame_rate_calc = 1.0 / (t_stop - t_start)
-            if len(frame_rate_buffer) >= fps_avg_len:
-                frame_rate_buffer.pop(0)
-            frame_rate_buffer.append(frame_rate_calc)
-            avg_frame_rate = np.mean(frame_rate_buffer)
 
             # Draw FPS count on screen 
             cv2.putText(frame, f'FPS: {frame_rate_calc:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
