@@ -5,7 +5,7 @@ from ultralytics import YOLO
 
 from fastapi import FastAPI 
 from fastapi.responses import StreamingResponse
-from esp_comms import ESP32UART
+from esp_comms.uart_con import ESP32UART
 
 
 
