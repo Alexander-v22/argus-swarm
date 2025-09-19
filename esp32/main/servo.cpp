@@ -14,11 +14,10 @@
 #define SERVO_PAN_GPIO GPIO_NUM_25
 #define SERVO_TILT_GPIO GPIO_NUM_26
 #define SERVO_MAX_US 2500 // the max PWM singal range
-#define SERVO_MIN_US 1200// the mine PWm singal range
+#define SERVO_MIN_US 500// the mine PWM singal range
 
 #define SERVO_TIMER LEDC_TIMER_0
 #define SERVO_RES LEDC_TIMER_16_BIT
-
 #define SERVO_FREQ_HZ 50 
 
 

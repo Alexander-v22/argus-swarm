@@ -128,16 +128,20 @@ def start_detection(args):
                 # Calc "error" form center more like Dist
                 distx = cenx - (resW // 2)
                 disty = ceny - (resH // 2)
-
-                # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
-
-                center_pan, center_tilt = 90, 90
                 
+                # created to keep servo orientation to the center instead of doing += or -= which was 
+                # not good enough due to fps 
+                center_pan, center_tilt = 90, 90
 
-                kp = 0.1
-                if(abs(distx) > 20 or abs(disty) > 20 ):
-                    pan_angle = center_pan + distx * kp
-                    tilt_angle = center_tilt - disty * kp
+                # Propertional contorl Kp - how stiff/ fast the servos move + servo startup                
+                kp_pan = 0.3
+                kp_tilt = 0.15
+                alpha = 0.2# smoothing factor on top of proportional gain 
+                if abs(distx) > 30: 
+                    pan_angle = (1-alpha) * center_pan + alpha *(90 + distx *  kp_pan)                   
+                
+                if abs(disty) > 30 :
+                    tilt_angle = (1-alpha) * center_tilt + alpha * (90 + disty *  kp_tilt)
 
                 #clamp the servo angles to ensure remove outliers 
                 pan_angle =  max(0, min(180, pan_angle))
@@ -150,7 +154,7 @@ def start_detection(args):
                 if object_count == 0:
                     pan_angle = 20
                     tilt_angle = 90
-                    uart.send_angles(pan_angle,tilt_angle) 
+                    uart.send_angles(pan_angle, tilt_angle) 
             
             # Draw FPS count on screen 
             cv2.putText(frame, f'FPS: {frame_rate_calc:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (173, 216, 230), 2)

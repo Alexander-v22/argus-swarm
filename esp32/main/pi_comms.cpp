@@ -50,17 +50,13 @@ void read_data(void){
     //safety measure terminate if buffer is zero 
     if (len < (int)rx_buf.size()) rx_buf[len] = '\0';
       
-    int deg_pan = 0, deg_tilt = 0;
+    int deg_pan = 0; 
+    int deg_tilt = 0;
     char comma;
     
     if( ss >> deg_pan>> comma >> deg_tilt){
       ESP_LOGI(TAG,"Coords Recieved: pan = %d , tilt =%d", deg_pan ,deg_tilt);
       servo_update(deg_pan, deg_tilt);
-
     }  
-  
-
-
-
-   }
+  }
 }
