@@ -49,7 +49,7 @@ def start_detection(args):
 
     #setting up UART communications/servo start up 
     uart = ESP32UART("/dev/ttyAMA0", 115200, timeout=0.5)
-    pan_angle = 20
+    pan_angle = 90
     tilt_angle = 90
     uart.send_angles(pan_angle,tilt_angle) 
 
