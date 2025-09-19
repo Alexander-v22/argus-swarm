@@ -49,7 +49,7 @@ def start_detection(args):
 
     #setting up UART communications/servo start up 
     uart = ESP32UART("/dev/ttyAMA0", 115200, timeout=0.5)
-    pan_angle = 90
+    pan_angle = 20
     tilt_angle = 90
     uart.send_angles(pan_angle,tilt_angle) 
 
@@ -126,10 +126,8 @@ def start_detection(args):
                 ceny = (ymax + ymin ) //2
 
                 # Calc "error" form center more like Dist
-                # setting APLHA for a EMA 
-                aplha = 0.2
-                smooth_errorx = (1 - aplha) * cenx - (resW // 2)
-                smooth_errory = (1 - aplha) * ceny - (resH // 2)
+                distx = cenx - (resW // 2)
+                disty = ceny - (resH // 2)
 
                 # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
 
@@ -137,11 +135,11 @@ def start_detection(args):
                 
                 kp_pan = 0.3
                 kp_tilt = 0.15
-                if abs(smooth_errorx) > 30: 
-                    pan_angle = center_pan + smooth_errorx * kp_pan  
+                if abs(distx) > 30: 
+                    pan_angle = center_pan + distx * kp_pan  
 
-                if abs(smooth_errory) > 30:
-                    tilt_angle = center_tilt - smooth_errory * kp_tilt
+                if abs(disty) > 30:
+                    tilt_angle = center_tilt - disty * kp_tilt
 
                 #clamp the servo angles to ensure remove outliers 
                 pan_angle =  max(0, min(180, pan_angle))
