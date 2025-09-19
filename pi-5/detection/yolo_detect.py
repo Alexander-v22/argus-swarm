@@ -130,10 +130,14 @@ def start_detection(args):
                 disty = ceny - (resH // 2)
 
                 # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
+
+                center_pan, center_tilt = 90, 90
+                
+
                 kp = 0.1
                 if(abs(distx) > 20 or abs(disty) > 20 ):
-                    pan_angle += distx * kp
-                    tilt_angle -= disty * kp
+                    pan_angle = center_pan + distx * kp
+                    tilt_angle = center_tilt - disty * kp
 
                 #clamp the servo angles to ensure remove outliers 
                 pan_angle =  max(0, min(180, pan_angle))
@@ -144,7 +148,7 @@ def start_detection(args):
 
                 
                 if object_count == 0:
-                    pan_angle = 10
+                    pan_angle = 20
                     tilt_angle = 90
                     uart.send_angles(pan_angle,tilt_angle) 
             
@@ -180,3 +184,4 @@ def start_detection(args):
             pass
 
     return app, cleanup
+    
