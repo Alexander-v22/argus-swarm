@@ -75,10 +75,8 @@ def start_detection(args):
             # Run YOLO detection --> skipping/reading every other frame 
             run_det = (frame_i % DETECT_EVERY == 0)
             if run_det:
-                results = model.track(frame, persist=True, tracker="botsort.yaml", verbose=False)
-                last_boxes = results[0].boxes
-            detections = last_boxes            
-            frame_i += 1
+                results = model.track(frame, persist=True, tracker="botsort.yaml", verbose=False, det_per_frame=DETECT_EVERY)
+                detections = results[0].boxes
 
             # Calc FPS outside of streaming loop 
             t_stop = time.perf_counter()
@@ -131,29 +129,41 @@ def start_detection(args):
                 distx = cenx - (resW // 2)
                 disty = ceny - (resH // 2)
 
-                # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
-
+                # Neutral Center Position 
                 center_pan, center_tilt = 90, 90
+
+                # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
                 kp_pan = 0.1
                 kp_tilt = 0.05
+                alpha = 0.3
+                target_pan 
+                target_tilt 
 
                 if abs(distx) > 20: 
-                    pan_angle = center_pan + distx * kp_pan  
+                    target_pan = center_pan + distx * kp_pan  
+                else: 
+                    target_pan = pan_angle
 
                 if abs(disty) > 20:
-                    tilt_angle = center_tilt - disty * kp_tilt
+                    target_tilt = center_tilt - disty * kp_tilt
+                else:
+                    target_tilt = tilt_angle
+
+                pan_angle = (1 - alpha) * pan_angle + alpha * target_pan
+                tilt_angle = (1 - alpha) * tilt_angle + alpha * target_tilt
 
 
                 #clamp the servo angles to ensure remove outliers 
                 pan_angle =  max(0, min(180, pan_angle))
                 tilt_angle =  max(0, min(180, tilt_angle))
                 
-                uart.send_angles(pan_angle, tilt_angle) 
-                
-            if object_count == 0:
+                uart.send_angles(pan_angle, tilt_angle)                 
+            else :
                 pan_angle = 90
                 tilt_angle = 90
                 uart.send_angles(pan_angle, tilt_angle) 
+
+            
         
             # Draw FPS count on screen 
             cv2.putText(frame, f'FPS: {frame_rate_calc:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (173, 216, 230), 2)
