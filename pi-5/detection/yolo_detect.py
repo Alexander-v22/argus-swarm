@@ -136,18 +136,16 @@ def start_detection(args):
                 kp_pan = 0.1
                 kp_tilt = 0.05
                 alpha = 0.3
-                target_pan 
-                target_tilt 
 
                 if abs(distx) > 20: 
                     target_pan = center_pan + distx * kp_pan  
                 else: 
-                    target_pan = pan_angle
+                    target_pan = center_pan 
 
                 if abs(disty) > 20:
                     target_tilt = center_tilt - disty * kp_tilt
                 else:
-                    target_tilt = tilt_angle
+                    target_tilt = center_tilt
 
                 pan_angle = (1 - alpha) * pan_angle + alpha * target_pan
                 tilt_angle = (1 - alpha) * tilt_angle + alpha * target_tilt
@@ -170,7 +168,7 @@ def start_detection(args):
 
             # Draw object count
             cv2.putText(frame, f'Objects detected: {object_count}', (10, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (173, 216, 230), 2)
-            
+
             # 80 -> 50 reduced the quality however increased FPS 
             ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
             if not ok:

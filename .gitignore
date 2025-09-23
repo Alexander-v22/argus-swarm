@@ -38,3 +38,6 @@ esp32/build/
 esp32/sdkconfig
 esp32/sdkconfig.old
 esp32/project_description.json
+
+#broker ip
+broker.py
