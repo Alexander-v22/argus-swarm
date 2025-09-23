@@ -75,7 +75,7 @@ def start_detection(args):
             # Run YOLO detection --> skipping/reading every other frame 
             run_det = (frame_i % DETECT_EVERY == 0)
             if run_det:
-                results = model.track(frame, persist=True, tracker="botsort.yaml", verbose=False, det_per_frame=DETECT_EVERY)
+                results = model.track(frame, persist=True, tracker="botsort.yaml", verbose=False)
                 detections = results[0].boxes
 
             # Calc FPS outside of streaming loop 
