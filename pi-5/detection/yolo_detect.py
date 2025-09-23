@@ -170,7 +170,8 @@ def start_detection(args):
 
             # Draw object count
             cv2.putText(frame, f'Objects detected: {object_count}', (10, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (173, 216, 230), 2)
-
+            
+            # 80 -> 50 reduced the quality however increased FPS 
             ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
             if not ok:
                 continue
