@@ -47,7 +47,7 @@ def start_detection(args):
     frame_i = 0
     last_boxes = None
 
-    #setting up UART communications/servo start up 
+    #setting up UART communications/servo
     uart = ESP32UART("/dev/ttyAMA0", 115200, timeout=0.5)
     pan_angle = 90
     tilt_angle = 90
@@ -87,12 +87,14 @@ def start_detection(args):
                 frame_rate_buffer.pop(0)
             frame_rate_buffer.append(frame_rate_calc)
             avg_frame_rate = np.mean(frame_rate_buffer)
+        
 
-
-
+            # Used for tracking a human type "Object"
             object_count = 0
             best_det = None; # a pointer that points to the same place in memory type None Class
             best_conf = 0
+
+
             # Loop through detections
             for i in range(len(detections)):
                 # Get bounding box
@@ -119,7 +121,7 @@ def start_detection(args):
 
 
 
-                # Calc the center of the frame to send to servos 
+            # Calc the center of the frame to send to servos 
             if best_det is not None:
                 xmin, ymin, xmax, ymax = best_det
                 cenx = (xmax + xmin) // 2
@@ -132,14 +134,15 @@ def start_detection(args):
                 # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
 
                 center_pan, center_tilt = 90, 90
-                
-                kp_pan = 0.3
-                kp_tilt = 0.15
-                if abs(distx) > 30: 
+                kp_pan = 0.1
+                kp_tilt = 0.05
+
+                if abs(distx) > 20: 
                     pan_angle = center_pan + distx * kp_pan  
 
-                if abs(disty) > 30:
+                if abs(disty) > 20:
                     tilt_angle = center_tilt - disty * kp_tilt
+
 
                 #clamp the servo angles to ensure remove outliers 
                 pan_angle =  max(0, min(180, pan_angle))
@@ -158,7 +161,7 @@ def start_detection(args):
             # Draw object count
             cv2.putText(frame, f'Objects detected: {object_count}', (10, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (173, 216, 230), 2)
 
-            ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+            ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
             if not ok:
                 continue
             jpg = buf.tobytes()
