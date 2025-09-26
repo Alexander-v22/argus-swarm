@@ -130,7 +130,6 @@ def start_detection(args):
                 disty = ceny - (resH // 2)
 
                 # Neutral Center Position 
-                center_pan, center_tilt = 90, 90
 
                 # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
                 kp_pan = 0.1
@@ -138,14 +137,14 @@ def start_detection(args):
                 alpha = 0.1
 
                 if abs(distx) > 20: 
-                    target_pan = center_pan + distx * kp_pan  
+                    target_pan = pan_angle + distx * kp_pan  
                 else: 
-                    target_pan = center_pan 
+                    target_pan = pan_angle 
 
                 if abs(disty) > 20:
-                    target_tilt = center_tilt + disty * kp_tilt
+                    target_tilt = tilt_angle - disty * kp_tilt
                 else:
-                    target_tilt = center_tilt
+                    target_tilt = tilt_angle
 
                 pan_angle = (1 - alpha) * pan_angle + alpha * target_pan
                 tilt_angle = (1 - alpha) * tilt_angle + alpha * target_tilt
