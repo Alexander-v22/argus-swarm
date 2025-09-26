@@ -128,8 +128,7 @@ def start_detection(args):
                 # Calc "error" form center more like Dist
                 distx = cenx - (resW // 2)
                 disty = ceny - (resH // 2)
-
-                # Neutral Center Position 
+                print(f"distx={distx}, disty={disty}, pan={pan_angle:.1f}, tilt={tilt_angle:.1f}")
 
                 # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
                 kp_pan = 0.1
