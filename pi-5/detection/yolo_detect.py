@@ -143,7 +143,7 @@ def start_detection(args):
                     target_pan = center_pan 
 
                 if abs(disty) > 20:
-                    target_tilt = center_tilt - disty * kp_tilt
+                    target_tilt = center_tilt + disty * kp_tilt
                 else:
                     target_tilt = center_tilt
 
