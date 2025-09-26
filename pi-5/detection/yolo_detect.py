@@ -131,8 +131,8 @@ def start_detection(args):
                 print(f"distx={distx}, disty={disty}, pan={pan_angle:.1f}, tilt={tilt_angle:.1f}")
 
                 # Propertional contorl Kp - how stiff/ fast the servos move + servo startup
-                kp_pan = 0.1
-                kp_tilt = 0.1
+                kp_pan = 0.3
+                kp_tilt = 0.3
                 alpha = 0.1
 
                 if abs(distx) > 20: 
