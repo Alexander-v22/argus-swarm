@@ -68,12 +68,12 @@ Argus is designed as a stationary sensor node within the Aegis autonomous defens
 
 ## Roadmap
 
-**Phase 1: Core Detection** ✅ (Current)
+**Phase 1: Core Detection** (Current)
 - Object detection and tracking
 - Servo control integration
 - Video streaming
 
-**Phase 2: Communication** 🔨 (In Progress)
+**Phase 2: Communication** (In Progress)
 - MQTT message protocol design
 - Target coordinate sharing
 - Multi-unit synchronization
