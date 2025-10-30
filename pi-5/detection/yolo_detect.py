@@ -152,7 +152,7 @@ def start_detection(args):
                 #clamp the servo angles to ensure remove outliers 
                 pan_angle =  max(0, min(180, pan_angle))
                 tilt_angle =  max(0, min(180, tilt_angle))
-                last_seen=time.time()
+                last_seen = time.time()
                 uart.send_angles(pan_angle, tilt_angle)                 
             else :
                 if time.time() - last_seen > 2:
