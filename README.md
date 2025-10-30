@@ -20,7 +20,7 @@ Argus is my project to create an AI-controlled turret system. This repository ma
 
 ## System Overview
 Argus uses a vision-based tracking system that:
-1. Detects persons using YOLOv8 with BoT-SORT tracking
+1. Detects persons using YOLOv11 with BoT-SORT tracking
 2. Calculates target position relative to frame center
 3. Sends pan/tilt commands to ESP32 microcontroller via UART
 4. Controls servos to keep target centered in frame
