@@ -135,7 +135,7 @@ def start_detection(args):
             else:
                 if time.time() - last_seen > 2:
                     pan_angle = 90
-                    tilt_angle = 45
+                    tilt_angle = 135
                     uart.send_angles(pan_angle, tilt_angle)
 
             cv2.putText(frame, f'FPS: {frame_rate_calc:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (173, 216, 230), 2)
