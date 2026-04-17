@@ -125,11 +125,11 @@ def start_detection(args):
                 else:
                     target_tilt = tilt_angle
 
-                pan_angle = (1 - alpha) * pan_angle + alpha * target_pan
-                #tilt_angle = (1 - alpha) * tilt_angle + alpha * target_tilt
+                #pan_angle = (1 - alpha) * pan_angle + alpha * target_pan
+                tilt_angle = (1 - alpha) * tilt_angle + alpha * target_tilt
 
-                pan_angle = max(0, min(180, pan_angle))
-                #tilt_angle = max(0, min(180, tilt_angle))
+                #pan_angle = max(0, min(180, pan_angle))
+                tilt_angle = max(0, min(180, tilt_angle))
                 last_seen = time.time()
                 uart.send_angles(pan_angle, tilt_angle)
             else:
