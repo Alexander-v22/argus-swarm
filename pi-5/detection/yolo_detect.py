@@ -126,16 +126,16 @@ def start_detection(args):
                     target_tilt = tilt_angle
 
                 pan_angle = (1 - alpha) * pan_angle + alpha * target_pan
-                tilt_angle = (1 - alpha) * tilt_angle + alpha * target_tilt
+                #tilt_angle = (1 - alpha) * tilt_angle + alpha * target_tilt
 
                 pan_angle = max(0, min(180, pan_angle))
-                tilt_angle = max(0, min(180, tilt_angle))
+                #tilt_angle = max(0, min(180, tilt_angle))
                 last_seen = time.time()
                 uart.send_angles(pan_angle, tilt_angle)
             else:
                 if time.time() - last_seen > 2:
                     pan_angle = 90
-                    tilt_angle = 90
+                    #tilt_angle = 45
                     uart.send_angles(pan_angle, tilt_angle)
 
             cv2.putText(frame, f'FPS: {frame_rate_calc:.2f}', (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (173, 216, 230), 2)
