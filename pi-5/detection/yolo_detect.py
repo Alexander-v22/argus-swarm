@@ -56,6 +56,7 @@ def start_detection(args):
     # Inference loop
     def start_stream():
         nonlocal avg_frame_rate, frame_i, last_boxes, tilt_angle, pan_angle
+        last_seen = time.time()
         while True:
             t_start = time.perf_counter() # returns the value of a high resolution performance counter measured in fractional seconds
 
