@@ -106,7 +106,7 @@ def start_detection(args):
                 cenx = (xmax + xmin) // 2
                 ceny = (ymax + ymin) // 2
 
-                y_thresh= 240
+                y_thresh= 440
                 box_height = ymax -ymin #tells me the box hight the inner canvas 
                 print(f"box_height={box_height}")
                 distx = cenx - (resW // 2)
