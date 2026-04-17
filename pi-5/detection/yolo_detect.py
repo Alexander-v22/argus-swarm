@@ -106,16 +106,24 @@ def start_detection(args):
                 cenx = (xmax + xmin) // 2
                 ceny = (ymax + ymin) // 2
 
+                y_thresh= 240
+                box_height = ymax -ymin #tells me the box hight the inner canvas 
+                print(f"box_height={box_height}")
                 distx = cenx - (resW // 2)
                 disty = ceny - (resH // 2)
-                print(f"distx={distx}, disty={disty}, pan={pan_angle:.1f}, tilt={tilt_angle:.1f}")
+                print(f"distx={distx}, disty={disty}, pan={pan_angle:.1f}, tilt={tilt_angle:.1f}, box_height= {box_height:.1f}")
 
                 kp_pan = 0.3
                 kp_tilt = 0.3
                 alpha = 0.1
 
                 target_pan = pan_angle + distx * kp_pan if abs(distx) > 20 else pan_angle
-                target_tilt = tilt_angle + disty * kp_tilt if abs(disty) > 20 else tilt_angle
+
+                if box_height < y_thresh and abs(disty) > 20: 
+                    target_tilt = tilt_angle - disty * kp_tilt 
+
+                else:
+                    target_tilt = tilt_angle
 
                 pan_angle = (1 - alpha) * pan_angle + alpha * target_pan
                 tilt_angle = (1 - alpha) * tilt_angle + alpha * target_tilt
