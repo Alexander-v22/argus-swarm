@@ -117,7 +117,7 @@ def start_detection(args):
                 kp_tilt = 0.3
                 alpha = 0.1
 
-                target_pan = pan_angle + distx * kp_pan if abs(distx) > 20 else pan_angle
+                target_pan = pan_angle - distx * kp_pan if abs(distx) > 20 else pan_angle
 
                 if box_height < y_thresh and abs(disty) > 20: 
                     target_tilt = tilt_angle - disty * kp_tilt 
