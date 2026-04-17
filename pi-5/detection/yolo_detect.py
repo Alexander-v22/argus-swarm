@@ -48,14 +48,17 @@ def start_detection(args):
     last_boxes = None
 
     #setting up UART communications/servo
+    '''
     uart = ESP32UART("/dev/ttyAMA0", 115200, timeout=0.5)
     pan_angle = 90
     tilt_angle = 90
     uart.send_angles(pan_angle,tilt_angle) 
+    '''
+
 
     # Inference loop
     def start_stream():
-        nonlocal avg_frame_rate, frame_i, last_boxes, tilt_angle, pan_angle
+        nonlocal avg_frame_rate, frame_i, last_boxes #tilt_angle, pan_angle
         last_seen = time.time()
         while True:
             t_start = time.perf_counter() # returns the value of a high resolution performance counter measured in fractional seconds
