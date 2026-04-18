@@ -3,8 +3,10 @@ import time
 import numpy as np
 from ultralytics import YOLO
 
+from fastapi import Request
 from fastapi import FastAPI 
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from esp_comms.uart_con import ESP32UART
 
 
@@ -113,16 +115,21 @@ def start_detection(args):
                 disty = ceny - (resH // 2)
                 print(f"distx={distx}, disty={disty}, pan={pan_angle:.1f}, tilt={tilt_angle:.1f}, box_height= {box_height:.1f}")
 
-                kp_pan = 0.3
-                kp_tilt = 0.3
-                alpha = 0.1
-
-                target_pan = pan_angle - distx * kp_pan if abs(distx) > 20 else pan_angle
-
-                if box_height < y_thresh and abs(disty) > 20: 
-                    target_tilt = tilt_angle - disty * kp_tilt 
-
+                kp_pan = config["kp_pan"]
+                kp_tilt = config["kp_tilt"]
+                alpha = config["alpha"]
+                
+                if config["enable_pan"]:
+                    target_pan = pan_angle - distx * kp_pan if abs(distx) > 20 else pan_angle
                 else:
+                    target_pan = pan_angle
+
+                if config["enable_tilt"]:
+                    if box_height < y_thresh and abs(disty) > 20: 
+                        target_tilt = tilt_angle - disty * kp_tilt 
+                    else:
+                        target_tilt = tilt_angle
+                else: 
                     target_tilt = tilt_angle
 
                 pan_angle = (1 - alpha) * pan_angle + alpha * target_pan
@@ -148,6 +155,29 @@ def start_detection(args):
             yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + jpg + b"\r\n")
 
     app = FastAPI()
+
+    config = {
+        "kp_tilt":0.3,
+        "kp_pan":0.3,
+        "alpha":0.1,
+        "enable_pan": True,
+        "enable_tilt": True
+    }
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    @app.post("/config")
+    async def update_config(request: Request):
+        data = await request.json()
+        config.update(data)
+        return {"status": "ok"}
+    
+
 
     @app.get("/video")
     def video():
